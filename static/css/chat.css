@@ -1,0 +1,25 @@
+body {
+  padding: 12px 14px;
+}
+
+h1 {
+  color: grey;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+input {
+  display: block;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.chat-input {
+  font-size: 14px;
+  margin-bottom: 8px;
+  padding: 4px;
+  width: 400px;
+  height: 80px;
+}
