@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"go-chat/trace"
 	"html/template"
 	"log"
@@ -9,6 +10,10 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/joho/godotenv"
+	"github.com/stretchr/gomniauth"
+	"github.com/stretchr/gomniauth/providers/google"
 )
 
 type templateHandler struct {
@@ -26,9 +31,34 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.templ.Execute(w, r)
 }
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
+// 内部状態を保持する必要があるときはhttp.Handlerのインターフェースを実装しているstructを定義 => http.Handleを使う
+// 内部状態を保持する必要がない場合には、func (http.ResponseWriter, *http.Request){}のファンクションを定義する => http.HandleFuncを使う
 func main() {
+	fmt.Println("id: ", os.Getenv("GOOGLE_CLIENT_ID"))
+	fmt.Println("secret: ", os.Getenv("GOOGLE_CLIENT_SECRET"))
+
+	// 引数でportを指定できるようにする
 	var addr = flag.String("addr", ":8080", "application address")
 	flag.Parse()
+	var baseUrl = "http://localhost" + *addr
+
+	// oauthパッケージのセットアップ
+	// TODO: security key はランダムな値にする
+	gomniauth.SetSecurityKey("Security Key")
+	gomniauth.WithProviders(
+		google.New(
+			os.Getenv("GOOGLE_CLIENT_ID"),
+			os.Getenv("GOOGLE_CLIENT_SECRET"),
+			fmt.Sprintf("%s/auth/callback/google", baseUrl),
+		),
+	)
 
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
@@ -37,6 +67,8 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	// chat用のrouting
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
+	http.Handle("/login", &templateHandler{filename: "login.html"})
+	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
 
 	go r.run()
