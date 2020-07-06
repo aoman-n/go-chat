@@ -1,16 +1,26 @@
 <html>
   <head>
     <title>チャット</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/chat.css" />
   </head>
   <body>
-    <h1>Websocketを使ったチャットアプリケーション</h1>
-    <ul id="messages"></ul>
-    <form id="chatbox">
-      {{ .UserData.name }}:<br/>
-      <textarea class="chat-input"></textarea>
-      <input type="submit" value="送信" />
-    </form>
+    <div class="container">
+      <h1>Websocketを使ったチャットアプリケーション</h1>
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <ul id="messages"></ul>
+        </div>
+      </div>
+      <form id="chatbox" role="form">
+        <div class="form-group">
+          <label for="message">{{ .UserData.name }}からメッセージを送信</label>
+          または <a href="/logout">サインアウト</a>
+          <textarea id="message" class="form-control"></textarea>
+        </div>
+        <input type="submit" value="送信" class="btn btn-default" />
+      </form>
+    </div>
 
     <!-- js -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -28,7 +38,7 @@
         };
 
         var socket = null;
-        var msgBox = $(".chat-input");
+        var msgBox = $("#message");
         var messages = $("#messages");
 
         $("#chatbox").submit(function() {
@@ -58,6 +68,7 @@
             const date = new Date(msg.When);
             messages.append(`
               <li>
+                <img class="avatar-img" src="${msg.AvatarURL}" title="${msg.Name}" />
                 <strong>${msg.Name}: </strong>
                 <span>[${formatDate(date, 'yyyy/MM/dd HH:mm')}]</span>
                 <span>${msg.Message}</span>

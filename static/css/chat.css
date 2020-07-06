@@ -16,10 +16,15 @@ ul {
   list-style-type: none;
 }
 
-.chat-input {
-  font-size: 14px;
-  margin-bottom: 8px;
-  padding: 4px;
-  width: 400px;
-  height: 80px;
+ul#messages li {
+  margin-bottom: 2px;
+}
+
+ul#messages li img {
+  margin-right: 10px;
+}
+
+.avatar-img {
+  width: 50px;
+  vertical-align: middle;
 }
