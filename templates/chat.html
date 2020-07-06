@@ -7,6 +7,7 @@
     <h1>Websocketを使ったチャットアプリケーション</h1>
     <ul id="messages"></ul>
     <form id="chatbox">
+      {{ .UserData.name }}:<br/>
       <textarea class="chat-input"></textarea>
       <input type="submit" value="送信" />
     </form>
@@ -15,6 +16,17 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script>
       $(function() {
+        function formatDate(date, format) {
+          format = format.replace(/yyyy/g, date.getFullYear());
+          format = format.replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2));
+          format = format.replace(/dd/g, ('0' + date.getDate()).slice(-2));
+          format = format.replace(/HH/g, ('0' + date.getHours()).slice(-2));
+          format = format.replace(/mm/g, ('0' + date.getMinutes()).slice(-2));
+          format = format.replace(/ss/g, ('0' + date.getSeconds()).slice(-2));
+          format = format.replace(/SSS/g, ('00' + date.getMilliseconds()).slice(-3));
+          return format;
+        };
+
         var socket = null;
         var msgBox = $(".chat-input");
         var messages = $("#messages");
@@ -26,7 +38,10 @@
             return false;
           };
 
-          socket.send(msgBox.val());
+          const msg = JSON.stringify({ Message: msgBox.val() });
+
+          // socket.send(msgBox.val());
+          socket.send(msg);
           msgBox.val("");
           return false;
         })
@@ -39,7 +54,15 @@
             alert("接続が終了しました")
           };
           socket.onmessage = function(e) {
-            messages.append(`<li>${e.data}</li>`);
+            const msg = JSON.parse(e.data);
+            const date = new Date(msg.When);
+            messages.append(`
+              <li>
+                <strong>${msg.Name}: </strong>
+                <span>[${formatDate(date, 'yyyy/MM/dd HH:mm')}]</span>
+                <span>${msg.Message}</span>
+              </li>
+            `);
           };
         };
       });
