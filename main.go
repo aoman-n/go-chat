@@ -68,7 +68,7 @@ func main() {
 		),
 	)
 
-	r := newRoom(UseAuthAvatar)
+	r := newRoom(UseGravatarAvatar)
 	r.tracer = trace.New(os.Stdout)
 
 	fs := http.FileServer(http.Dir("./static"))
